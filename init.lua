@@ -1839,7 +1839,7 @@ function lsp.request_document_symbols(doc)
         callback = function(server, response)
           if response.result and response.result and #response.result > 0 then
             local symbols, symbol_names = get_symbol_lists(response.result)
-            core.command_view:enter("Find Symbol", {
+            core.command_view:enter_with_location_jump("Find Symbol", {
               submit = function(text, item)
                 if item then
                   local symbol = symbols[item.name]
@@ -1865,6 +1865,12 @@ function lsp.request_document_symbols(doc)
                   }
                 end
                 return res
+              end,
+              preview = function (item) 
+                local symbol = symbols[item.name]
+                symbol = symbol.location and symbol.location or symbol
+                local line1, col1 = util.toselection(symbol.range, doc)
+                return {line1, col1, line1, col1}
               end
             })
           end
